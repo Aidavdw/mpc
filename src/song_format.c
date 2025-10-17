@@ -85,11 +85,10 @@ song_value(const struct mpd_song *song, const char *name)
 		if (tag_type == MPD_TAG_UNKNOWN)
 			return NULL;
 
-		// mpd_song_get_tag can be called repeatedly with different index
-		// if tag has multiple entries (e.g. multiple artists)
-		// It returns nullptr when it runs out.
+		/* mpd_song_get_tag can be called repeatedly with different index
+		if tag has multiple entries (e.g. multiple artists)
+		It returns nullptr when it runs out. */
 		size_t len = 0;
-		strcpy(buffer, "");
 		for (unsigned i = 0; ; i++) {
 
 			const char *tag_entry = mpd_song_get_tag(song, tag_type, i);
