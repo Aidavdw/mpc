@@ -44,7 +44,7 @@ gcc_pure
 static const char *
 song_value(const struct mpd_song *song, const char *name)
 {
-	static char buffer[40];
+	static char buffer[280];
 	const char *value;
 
 	if (strcmp(name, "file") == 0)
@@ -85,7 +85,26 @@ song_value(const struct mpd_song *song, const char *name)
 		if (tag_type == MPD_TAG_UNKNOWN)
 			return NULL;
 
-		value = mpd_song_get_tag(song, tag_type, 0);
+		// mpd_song_get_tag can be called repeatedly with different index
+		// if tag has multiple entries (e.g. multiple artists)
+		// It returns nullptr when it runs out.
+		size_t len = 0;
+		strcpy(buffer, "");
+		for (unsigned i = 0; ; i++) {
+
+			const char *tag_entry = mpd_song_get_tag(song, tag_type, i);
+			const size_t remaining_space = sizeof(buffer) - len;
+			if (tag_entry == NULL)
+				break;
+			int chars_written = snprintf(buffer + len, remaining_space, "%s%s", (len > 0 ? " || " : ""), tag_entry);
+			if (chars_written < 0)
+				break;
+			const size_t n = (size_t)chars_written;
+			if (n >= remaining_space)
+				break;
+			len += n;
+		}
+		value = buffer;
 	}
 
 	if (value != NULL)
