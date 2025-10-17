@@ -89,7 +89,9 @@ gcc_pure
 static const char *
 song_value(const struct mpd_song *song, const char *name)
 {
-	static char buffer[280];
+	/* Arbitrary size.
+	Should be large enough to fit multiple artists with long names */
+	static char buffer[256];
 	const char *value;
 
 	if (strcmp(name, "file") == 0)
