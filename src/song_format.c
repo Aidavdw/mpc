@@ -19,7 +19,8 @@
  * @param end   Pointer to the end of buffer (one past last byte)
  * @param song  MPD song object
  * @param tag   MPD tag type
- * @return      Updated dest pointer after writing; always null-terminated
+ * @return      Updated dest pointer after writing; If text added, null-terminated.
+ * If no tag of this type fund, returns NULL.
  */
 static char *
 copy_tags(char *dest, char *end, const struct mpd_song *song, enum mpd_tag_type tag)
@@ -132,8 +133,10 @@ song_value(const struct mpd_song *song, const char *name)
 		if (tag_type == MPD_TAG_UNKNOWN)
 			return NULL;
 
-		copy_tags(buffer, buffer + sizeof(buffer), song, tag_type);
-		value = buffer;
+		const char *added_text = copy_tags(buffer, buffer + sizeof(buffer), song, tag_type);
+		if (added_text != NULL) {
+			value = buffer;
+		}
 	}
 
 	if (value != NULL)
